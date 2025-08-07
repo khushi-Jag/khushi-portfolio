@@ -1,0 +1,837 @@
+'use client';
+
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import * as THREE from 'three';
+
+// Navigation Component
+const Navigation = ({ activeSection, setActiveSection }) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'projects', label: 'Projects' },
+    { id: 'contact', label: 'Contact' }
+  ];
+
+  return (
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-gray-900/90 backdrop-blur-md shadow-xl' : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex justify-between items-center">
+          <div className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          
+          </div>
+          <div className="hidden md:flex space-x-8">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`relative px-4 py-2 rounded-lg transition-all duration-300 ${
+                  activeSection === item.id
+                    ? 'text-purple-400'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                {item.label}
+                {activeSection === item.id && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+// 3D Scene Component
+const ThreeScene = ({ variant = 'floating' }) => {
+  const mountRef = useRef(null);
+  const sceneRef = useRef(null);
+  const rendererRef = useRef(null);
+  const animationFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (!mountRef.current) return;
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    
+    renderer.setSize(400, 400);
+    renderer.setClearColor(0x000000, 0);
+    mountRef.current.appendChild(renderer.domElement);
+
+    sceneRef.current = scene;
+    rendererRef.current = renderer;
+
+    // Create geometry based on variant
+    let geometry, material, mesh;
+    
+    if (variant === 'floating') {
+      // Floating geometric shapes
+      const shapes = [];
+      for (let i = 0; i < 20; i++) {
+        const shapeGeometry = Math.random() > 0.5 
+          ? new THREE.BoxGeometry(0.2, 0.2, 0.2)
+          : new THREE.SphereGeometry(0.1, 8, 8);
+        
+        const shapeMaterial = new THREE.MeshPhongMaterial({
+          color: new THREE.Color().setHSL(Math.random() * 0.3 + 0.7, 0.8, 0.6),
+          transparent: true,
+          opacity: 0.8
+        });
+        
+        const shape = new THREE.Mesh(shapeGeometry, shapeMaterial);
+        shape.position.set(
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 4
+        );
+        shape.rotation.set(
+          Math.random() * Math.PI,
+          Math.random() * Math.PI,
+          Math.random() * Math.PI
+        );
+        shapes.push(shape);
+        scene.add(shape);
+      }
+      mesh = shapes;
+    } else if (variant === 'wireframe') {
+      // Wireframe torus
+      geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+      material = new THREE.MeshBasicMaterial({
+        color: 0x8b5cf6,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.8
+      });
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+    } else {
+      // DNA-like helix
+      const points = [];
+      for (let i = 0; i < 100; i++) {
+        const angle = (i / 100) * Math.PI * 8;
+        const x = Math.cos(angle) * 1.5;
+        const y = (i / 100) * 4 - 2;
+        const z = Math.sin(angle) * 1.5;
+        points.push(new THREE.Vector3(x, y, z));
+      }
+      
+      geometry = new THREE.BufferGeometry().setFromPoints(points);
+      material = new THREE.LineBasicMaterial({
+        color: 0xec4899,
+        transparent: true,
+        opacity: 0.8
+      });
+      mesh = new THREE.Line(geometry, material);
+      scene.add(mesh);
+    }
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(2, 2, 2);
+    scene.add(ambientLight, directionalLight);
+
+    camera.position.z = 5;
+
+    // Animation
+    const animate = () => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      
+      if (Array.isArray(mesh)) {
+        // Animate floating shapes
+        mesh.forEach((shape, i) => {
+          shape.rotation.x += 0.01 + i * 0.001;
+          shape.rotation.y += 0.01 + i * 0.001;
+          shape.position.y += Math.sin(Date.now() * 0.001 + i) * 0.002;
+        });
+      } else if (mesh) {
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.01;
+      }
+      
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Cleanup
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+    };
+  }, [variant]);
+
+  return <div ref={mountRef} className="w-full h-full flex items-center justify-center" />;
+};
+
+// Hero Section
+const HeroSection = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      {/* Animated background particles */}
+      <div className="absolute inset-0">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full opacity-20 animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${2 + Math.random() * 3}s`
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+        {/* Content */}
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <p className="text-purple-400 text-lg font-medium animate-fade-in-up">
+              Hello, I'm
+            </p>
+            <h1 className="text-6xl lg:text-7xl font-bold text-white animate-fade-in-up animation-delay-200">
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                Khushi
+              </span>
+            </h1>
+            <h2 className="text-2xl lg:text-3xl text-gray-300 animate-fade-in-up animation-delay-400">
+              Computer Science Student & Developer
+            </h2>
+          </div>
+          
+          <p className="text-gray-400 text-lg leading-relaxed max-w-2xl animate-fade-in-up animation-delay-600">
+            Passionate about creating innovative solutions through code. Specializing in 
+            full-stack development, game programming, and system architecture with a focus 
+            on modern technologies and best practices.
+          </p>
+
+          {/* Social Links */}
+          <div className="flex space-x-6 animate-fade-in-up animation-delay-800">
+            {[
+              { label: 'LinkedIn', icon: '💼', href: 'https://linkedin.com/in/khushi' },
+              { label: 'GitHub', icon: '💻', href: 'https://github.com/khushi' },
+              { label: 'Email', icon: '📧', href: 'mailto:khushijagwani04@gmail.com' },
+              { label: 'Instagram', icon: '📷', href: 'https://instagram.com/khushi' }
+            ].map((social, i) => (
+              <a
+                key={social.label}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl hover:scale-110 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25"
+                title={social.label}
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
+
+          <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-medium hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 animate-fade-in-up animation-delay-1000">
+            Download Resume
+          </button>
+        </div>
+
+        {/* 3D Animation */}
+        <div className="flex justify-center lg:justify-end">
+          <div className="w-96 h-96 relative">
+            <div 
+              className="absolute inset-0 transition-transform duration-300"
+              style={{
+                transform: `rotateY(${mousePosition.x * 10}deg) rotateX(${-mousePosition.y * 10}deg)`
+              }}
+            >
+              <Suspense fallback={<div className="w-full h-full bg-gray-800 rounded-full animate-pulse" />}>
+                <ThreeScene variant="floating" />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// About Section
+const AboutSection = () => {
+  return (
+    <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* 3D Profile Animation */}
+          <div className="flex justify-center lg:justify-start">
+            <div className="w-96 h-96 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"></div>
+              <div className="relative w-full h-full">
+                <Suspense fallback={<div className="w-full h-full bg-gray-800 rounded-full animate-pulse" />}>
+                  <ThreeScene variant="floating" />
+                </Suspense>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+                About <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Me</span>
+              </h2>
+              <h3 className="text-2xl text-purple-400 font-semibold mb-6">
+                Computer Science Student & Developer
+              </h3>
+            </div>
+
+            <div className="space-y-6 text-gray-300 leading-relaxed">
+              <p className="text-lg">
+                I am a dedicated Computer Science undergraduate with strong programming 
+                fundamentals and hands-on project experience. My passion lies in creating 
+                innovative solutions that bridge the gap between complex technical concepts 
+                and real-world applications.
+              </p>
+
+              <p className="text-lg">
+                Proficient in multiple programming languages including <span className="text-purple-400 font-semibold">Java</span>, 
+                <span className="text-purple-400 font-semibold"> Python</span>, and <span className="text-purple-400 font-semibold">C++</span>, 
+                with practical knowledge of data structures, algorithms, and modern web technologies.
+              </p>
+
+              <p className="text-lg">
+                My experience spans from <span className="text-pink-400 font-semibold">game development</span> using 
+                C++ and SFML to <span className="text-pink-400 font-semibold">full-stack web applications</span> and 
+                <span className="text-pink-400 font-semibold"> enterprise-level systems</span>. I believe in continuous 
+                learning and staying updated with the latest industry trends and best practices.
+              </p>
+            </div>
+
+            {/* Statistics */}
+            <div className="grid grid-cols-3 gap-6 pt-8">
+              {[
+                { number: '15+', label: 'Projects Completed' },
+                { number: '3+', label: 'Years Learning' },
+                { number: '6+', label: 'Technologies Mastered' }
+              ].map((stat, index) => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                    {stat.number}
+                  </div>
+                  <div className="text-gray-400 text-sm">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-medium hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25">
+              Let's Connect
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Services Section
+const ServicesSection = () => {
+  const services = [
+    {
+      icon: '💻',
+      title: 'Web Development',
+      description: 'Creating responsive and dynamic websites using modern frameworks like React, Next.js, and cutting-edge CSS techniques. Specializing in user-friendly interfaces and optimal performance.',
+      features: ['Responsive Design', 'Modern Frameworks', 'Performance Optimization', 'SEO Friendly'],
+      gradient: 'from-blue-500 to-cyan-500'
+    },
+    {
+      icon: '🎮',
+      title: 'Game Development',
+      description: 'Developing engaging games using C++ and SFML with focus on gameplay mechanics, graphics optimization, and cross-platform compatibility.',
+      features: ['C++ & SFML', 'Game Physics', 'Graphics Optimization', 'Cross-Platform'],
+      gradient: 'from-purple-500 to-pink-500'
+    },
+    {
+      icon: '🏗️',
+      title: 'System Architecture',
+      description: 'Building scalable enterprise systems and management platforms with robust architecture, database design, and secure authentication.',
+      features: ['Database Design', 'System Architecture', 'API Development', 'Security Implementation'],
+      gradient: 'from-orange-500 to-red-500'
+    },
+    {
+      icon: '📱',
+      title: 'Mobile Solutions',
+      description: 'Creating mobile-first applications and progressive web apps that provide seamless user experiences across all devices.',
+      features: ['Mobile-First Design', 'PWA Development', 'Cross-Platform', 'Native Performance'],
+      gradient: 'from-green-500 to-teal-500'
+    }
+  ];
+
+  return (
+    <section className="py-20 bg-gray-800">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            My <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Services</span>
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Comprehensive development services tailored to bring your ideas to life
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {services.map((service, index) => (
+            <div 
+              key={service.title}
+              className="group bg-gray-900/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:border-purple-500/50 transition-all duration-500 hover:transform hover:scale-105"
+            >
+              {/* Service Icon */}
+              <div className={`w-20 h-20 bg-gradient-to-r ${service.gradient} rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                {service.icon}
+              </div>
+
+              {/* Service Content */}
+              <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors duration-300">
+                {service.title}
+              </h3>
+              
+              <p className="text-gray-400 mb-6 leading-relaxed">
+                {service.description}
+              </p>
+
+              {/* Features */}
+              <div className="space-y-3 mb-8">
+                {service.features.map((feature, featureIndex) => (
+                  <div key={feature} className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Learn More Button */}
+              <button className="w-full bg-transparent border-2 border-purple-500 text-purple-400 py-3 rounded-lg font-medium hover:bg-purple-500 hover:text-white transition-all duration-300 group-hover:shadow-lg group-hover:shadow-purple-500/25">
+                Learn More
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const SkillsSection = () => {
+  const skills = [
+    { name: 'Java', level: 85, color: 'from-orange-400 to-red-500' },
+    { name: 'Python', level: 80, color: 'from-blue-400 to-blue-600' },
+    { name: 'C/C++', level: 85, color: 'from-purple-400 to-purple-600' },
+    { name: 'JavaScript', level: 75, color: 'from-yellow-400 to-orange-500' },
+    { name: 'React/Next.js', level: 70, color: 'from-cyan-400 to-blue-500' },
+    { name: 'HTML/CSS', level: 90, color: 'from-pink-400 to-red-500' }
+  ];
+
+  return (
+    <section className="py-20 bg-gray-900">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            My <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Skills</span>
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            A comprehensive overview of my technical expertise and proficiency levels
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Skills List */}
+          <div className="space-y-8">
+            {skills.map((skill, index) => (
+              <div key={skill.name} className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-white font-medium text-lg">{skill.name}</h3>
+                  <span className="text-purple-400 font-semibold">{skill.level}%</span>
+                </div>
+                <div className="h-3 bg-gray-800 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r ${skill.color} rounded-full transition-all duration-1000 ease-out`}
+                    style={{ 
+                      width: `${skill.level}%`,
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 3D Visualization */}
+          <div className="flex items-center justify-center">
+            <div className="w-96 h-96">
+              <Suspense fallback={<div className="w-full h-full bg-gray-800 rounded-lg animate-pulse" />}>
+                <ThreeScene variant="wireframe" />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Projects Section
+const ProjectsSection = () => {
+  const projects = [
+    {
+      title: 'Hospital Management System',
+      description: 'Comprehensive hospital management system built with Java, featuring patient registration, appointment scheduling, and medical record management.',
+      tech: ['Java', 'Data Structures', 'File Handling'],
+      icon: '🏥',
+      gradient: 'from-blue-500 to-cyan-500'
+    },
+    {
+      title: 'Job Portal Platform',
+      description: 'Full-featured job portal with role-based dashboards, application tracking, and secure authentication system.',
+      tech: ['Java', 'Swing', 'OOP'],
+      icon: '💼',
+      gradient: 'from-purple-500 to-pink-500'
+    },
+    {
+      title: 'Interactive Café Website',
+      description: 'Responsive café website with digital menu, event booking system, and mobile-optimized user experience.',
+      tech: ['HTML', 'CSS', 'Bootstrap'],
+      icon: '☕',
+      gradient: 'from-orange-500 to-red-500'
+    },
+    {
+      title: 'Academic Records System',
+      description: 'Full-stack academic management platform with hierarchical structure for managing student performance data.',
+      tech: ['PostgreSQL', 'Node.js', 'Database'],
+      icon: '🎓',
+      gradient: 'from-green-500 to-teal-500'
+    },
+    {
+      title: 'Game Development Portfolio',
+      description: 'Collection of arcade-style games including Centipede, Candy Crush Clone, and Space Shooter using modern game development techniques.',
+      tech: ['C++', 'SFML', 'Game Dev'],
+      icon: '🎮',
+      gradient: 'from-indigo-500 to-purple-500'
+    }
+  ];
+
+  return (
+    <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            Featured <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Projects</span>
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            A showcase of my recent work and technical achievements
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project, index) => (
+            <div 
+              key={project.title}
+              className="group bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-105"
+            >
+              {/* Project Icon */}
+              <div className={`w-16 h-16 bg-gradient-to-r ${project.gradient} rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                {project.icon}
+              </div>
+
+              {/* Project Content */}
+              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors duration-300">
+                {project.title}
+              </h3>
+              <p className="text-gray-400 mb-6 leading-relaxed">
+                {project.description}
+              </p>
+
+              {/* Tech Stack */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {project.tech.map((tech) => (
+                  <span 
+                    key={tech}
+                    className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-500/30"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              {/* Project Link */}
+              <button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
+                View Project
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ContactSection = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form submitted:', formData);
+    // You can add form handling logic here
+  };
+
+  return (
+    <section className="py-20 bg-gray-900">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            Get In <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Touch</span>
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Let's discuss opportunities and bring innovative ideas to life together
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Contact Info */}
+          <div className="space-y-8">
+            <div>
+              <h3 className="text-2xl font-bold text-white mb-6">
+                Let's Work <span className="text-purple-400">Together</span>
+              </h3>
+              <p className="text-gray-400 leading-relaxed mb-8">
+                I'm always interested in new opportunities, whether it's an internship, 
+                entry-level position, or collaborative project. Feel free to reach out!
+              </p>
+            </div>
+
+            {/* Contact Details */}
+            <div className="space-y-6">
+              {[
+                { icon: '📧', label: 'Email', value: 'khushijagwani04@gmail.com' },
+                { icon: '📱', label: 'Phone', value: '+92 XXX XXXXXXX' },
+                { icon: '📍', label: 'Location', value: 'Karachi, Pakistan' }
+              ].map((contact) => (
+                <div key={contact.label} className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-xl">
+                    {contact.icon}
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">{contact.label}</p>
+                    <p className="text-white font-medium">{contact.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 3D Element */}
+            <div className="w-64 h-64 mx-auto lg:mx-0">
+              <Suspense fallback={<div className="w-full h-full bg-gray-800 rounded-lg animate-pulse" />}>
+                <ThreeScene variant="helix" />
+              </Suspense>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-white mb-2">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white mb-2">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white mb-2">Message</label>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  rows="5"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-lg font-medium hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Main Portfolio Component
+const Portfolio = () => {
+  const [activeSection, setActiveSection] = useState('home');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['home', 'about', 'services', 'skills', 'projects', 'contact'];
+      const scrollPosition = window.scrollY + 100;
+
+      sections.forEach((section) => {
+        const element = document.getElementById(section);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Custom CSS */}
+      <style jsx>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+          opacity: 0;
+        }
+        
+        .animation-delay-200 { animation-delay: 0.2s; }
+        .animation-delay-400 { animation-delay: 0.4s; }
+        .animation-delay-600 { animation-delay: 0.6s; }
+        .animation-delay-800 { animation-delay: 0.8s; }
+        .animation-delay-1000 { animation-delay: 1s; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #1f2937;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #8b5cf6, #ec4899);
+          border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #7c3aed, #db2777);
+        }
+      `}</style>
+
+      <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
+      
+      <div id="home">
+        <HeroSection />
+      </div>
+      
+      <div id="about">
+        <AboutSection />
+      </div>
+
+      <div id="services">
+        <ServicesSection />
+      </div>
+      
+      <div id="skills">
+        <SkillsSection />
+      </div>
+      
+      <div id="projects">
+        <ProjectsSection />
+      </div>
+      
+      <div id="contact">
+        <ContactSection />
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 py-8 border-t border-gray-700">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-gray-400">
+            © 2025 Khushi Jagwani. Built with Next.js and Three.js
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Portfolio;
