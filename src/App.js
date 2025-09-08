@@ -84,30 +84,33 @@ const Navigation = ({ activeSection, setActiveSection }) => {
   };
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-700 ${
       scrolled 
-        ? 'bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/50 shadow-2xl shadow-slate-900/20' 
+        ? 'bg-slate-950/90 backdrop-blur-2xl border-b border-slate-700/30 shadow-2xl shadow-slate-900/30' 
         : 'bg-transparent'
     }`}>
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="w-full max-w-full mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <div className="text-2xl font-bold tracking-tight">
+          <div className="inline-flex items-center space-x-3 text-emerald-400 text-sm font-medium tracking-wide uppercase bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
+            <span>Computer Science Student</span>
           </div>
-          <div className="hidden md:flex space-x-1">
+          <div className="hidden md:flex space-x-2">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`relative px-6 py-2 rounded-lg font-medium transition-all duration-300 ${
+                className={`relative px-4 py-3 rounded-xl font-medium transition-all duration-500 ${
                   activeSection === item.id
-                    ? 'text-emerald-400 bg-emerald-400/10'
-                    : 'text-slate-300 hover:text-slate-100 hover:bg-slate-800/50'
-                }`}
+                    ? 'text-emerald-300 bg-emerald-400/15 shadow-lg shadow-emerald-400/20'
+                    : 'text-slate-300 hover:text-slate-100 hover:bg-slate-700/40'
+                } group`}
               >
                 {item.label}
                 {activeSection === item.id && (
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-emerald-400/20 to-teal-400/20 border border-emerald-400/20" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/25 to-teal-400/25 border border-emerald-400/30 animate-pulse" />
                 )}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/10 to-teal-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             ))}
           </div>
@@ -117,7 +120,7 @@ const Navigation = ({ activeSection, setActiveSection }) => {
   );
 };
 
-// 3D Scene Component with subtle animations
+// Enhanced 3D Scene Component with modern animations
 const ThreeScene = ({ variant = 'geometric' }) => {
   const mountRef = useRef(null);
   const sceneRef = useRef(null);
@@ -131,8 +134,10 @@ const ThreeScene = ({ variant = 'geometric' }) => {
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     
-    renderer.setSize(400, 400);
+    renderer.setSize(300, 300);
     renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mountRef.current.appendChild(renderer.domElement);
 
     sceneRef.current = scene;
@@ -141,7 +146,7 @@ const ThreeScene = ({ variant = 'geometric' }) => {
     let mesh;
     
     if (variant === 'geometric') {
-      // Sophisticated geometric structure
+      // Simple geometric structure
       const group = new THREE.Group();
       
       // Main structure
@@ -177,7 +182,7 @@ const ThreeScene = ({ variant = 'geometric' }) => {
       mesh = group;
       scene.add(mesh);
     } else if (variant === 'network') {
-      // Network visualization
+      // Simple network visualization
       const group = new THREE.Group();
       const nodes = [];
       
@@ -217,15 +222,19 @@ const ThreeScene = ({ variant = 'geometric' }) => {
       scene.add(mesh);
     }
 
-    // Subtle lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(2, 2, 2);
-    scene.add(ambientLight, directionalLight);
+    // Enhanced lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(3, 3, 3);
+    directionalLight.castShadow = true;
+    
+    // Add rim light
+    const rimLight = new THREE.DirectionalLight(0x14b8a6, 0.3);
+    rimLight.position.set(-2, -2, 2);
+    
+    scene.add(ambientLight, directionalLight, rimLight);
+    camera.position.z = 5;
 
-    camera.position.z = 4;
-
-    // Smooth animation
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
       
@@ -252,27 +261,7 @@ const ThreeScene = ({ variant = 'geometric' }) => {
   return <div ref={mountRef} className="w-full h-full flex items-center justify-center" />;
 };
 
-// Profile Image Component
-const ProfileImage = () => {
-  return (
-    <div className="relative w-[450px] h-[450px] mx-auto">
-      {/* Gradient border */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-400 to-cyan-400 p-1.5">
-        <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
-          {/* Placeholder for actual profile image */}
-          <div className="w-[430px] h-[430px] rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-9xl text-emerald-400">
-            K
-          </div>
-        </div>
-      </div>
-      
-      {/* Subtle glow effect */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400/20 to-teal-400/20 blur-xl -z-10"></div>
-    </div>
-  );
-};
-
-// Hero Section
+// Enhanced Hero Section with larger profile image and better animations
 const HeroSection = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -306,95 +295,120 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.3) 1px, transparent 0)`,
-          backgroundSize: '50px 50px'
+    <section className="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 w-full">
+      {/* Enhanced background pattern */}
+      <div className="absolute inset-0 w-full">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `
+              radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(20, 184, 166, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 50%)
+            `
+          }}></div>
+        </div>
+        {/* Animated grid */}
+        <div className="absolute inset-0 opacity-10 animate-pulse" style={{
+          backgroundImage: `linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px)`,
+          backgroundSize: '100px 100px'
         }}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center z-10">
-        {/* Content */}
-        <div className="space-y-8">
-          <div className="space-y-6">
-            <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span>Computer Science Student</span>
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-center z-10">
+          {/* Content */}
+          <div className="flex-1 space-y-8 text-center lg:text-left">
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-none">
+                <span className="text-slate-100">Hi, I'm </span>
+                <div className="inline-block">
+                  <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                    Khushi
+                  </span>
+                </div>
+              </h1>
+              
+              <h2 className="text-lg md:text-xl lg:text-2xl text-slate-400 font-light leading-relaxed">
+                Full-Stack Developer & Software Engineer
+              </h2>
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-slate-100">Hi, I'm </span>
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                Khushi
-              </span>
-            </h1>
-            
-            <h2 className="text-xl lg:text-2xl text-slate-400 font-light leading-relaxed">
-              Full-Stack Developer & Software Engineer
-            </h2>
-          </div>
-          
-          <p className="text-slate-300 text-lg leading-relaxed max-w-2xl">
-            Passionate about creating innovative digital solutions through clean code and 
-            thoughtful design. Specializing in modern web technologies, system architecture, 
-            and user-centered development practices.
-          </p>
+            <p className="text-slate-300 text-base md:text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              Passionate about creating innovative digital solutions through clean code and 
+              thoughtful design. Specializing in modern web technologies, system architecture, 
+              and user-centered development practices.
+            </p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-4">
-            <button 
-              onClick={downloadCV}
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-4 rounded-lg font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105"
-            >
-              <DownloadIcon />
-              <span>Download CV</span>
-            </button>
-            
-            <button 
-              onClick={downloadResume}
-              className="inline-flex items-center space-x-2 border-2 border-emerald-400 text-emerald-400 px-8 py-4 rounded-lg font-medium hover:bg-emerald-400 hover:text-slate-900 transition-all duration-300"
-            >
-              <DownloadIcon />
-              <span>Download Resume</span>
-            </button>
-          </div>
-
-          {/* Social Links */}
-          <div className="flex space-x-4">
-            {[
-              { icon: LinkedinIcon, href: 'https://www.linkedin.com/in/khushi-jagwani-766a6a348', label: 'LinkedIn' },
-              { icon: GithubIcon, href: 'https://github.com/khushi-Jag', label: 'GitHub' },
-              { icon: MailIcon, href: 'mailto:khushijagwani04@gmail.com', label: 'Email' }
-            ].map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-12 h-12 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-slate-700 hover:border-emerald-400/50 transition-all duration-300"
-                title={social.label}
+            {/* Enhanced Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <button 
+                onClick={downloadCV}
+                className="group relative inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold text-base hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-500 hover:scale-105 overflow-hidden"
               >
-                <social.icon />
-              </a>
-            ))}
-          </div>
-        </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <DownloadIcon />
+                <span className="relative z-10">Download CV</span>
+                <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+              </button>
+              
+              <button 
+                onClick={downloadResume}
+                className="group relative inline-flex items-center justify-center space-x-3 border-2 border-emerald-400 text-emerald-400 px-8 py-4 rounded-2xl font-semibold text-base hover:bg-emerald-400 hover:text-slate-900 transition-all duration-500 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-emerald-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <DownloadIcon className="relative z-10" />
+                <span className="relative z-10">Download Resume</span>
+              </button>
+            </div>
 
-        {/* Profile Image */}
-        <div className="flex justify-center">
-          <div 
-            className="transition-transform duration-500 ease-out"
-            style={{
-              transform: `perspective(1000px) rotateY(${mousePosition.x * 5}deg) rotateX(${-mousePosition.y * 5}deg)`
-            }}
-          >
-            <img 
-                src="/best.jpg"
-                alt="Profile"
-                className="w-52 h-52 rounded-full object-cover shadow-lg"
-              />
+            {/* Enhanced Social Links */}
+            <div className="flex space-x-4 justify-center lg:justify-start transform -translate-y-4">
+              {[
+                { icon: LinkedinIcon, href: 'https://www.linkedin.com/in/khushi-jagwani-766a6a348', label: 'LinkedIn' },
+                { icon: GithubIcon, href: 'https://github.com/khushi-Jag', label: 'GitHub' },
+                { icon: MailIcon, href: 'mailto:khushijagwani04@gmail.com', label: 'Email' }
+              ].map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group w-14 h-14 bg-slate-800/50 border-2 border-slate-700/50 rounded-2xl flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:bg-slate-700/50 hover:border-emerald-400/50 transition-all duration-500 hover:scale-110 hover:-translate-y-2 backdrop-blur-sm"
+                  title={social.label}
+                >
+                  <social.icon />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400/10 to-teal-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Enhanced Profile Image */}
+          <div className="flex justify-center relative flex-shrink-0">
+            <div 
+              className="transition-transform duration-500 ease-out"
+              style={{
+                transform: `perspective(1000px) rotateY(${mousePosition.x * 2}deg) rotateX(${-mousePosition.y * 2}deg)`
+              }}
+            >
+              {/* Profile image container */}
+              <div className="relative w-[280px] h-[280px] md:w-[320px] md:h-[320px] lg:w-[350px] lg:h-[350px]">
+                {/* Gradient border */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400 via-teal-400 to-cyan-400 p-1.5">
+                  <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
+                    <img 
+                      src="/best.jpg"
+                      alt="Profile"
+                      className="w-[calc(100%-12px)] h-[calc(100%-12px)] rounded-full object-cover shadow-xl"
+                    />
+                  </div>
+                </div>
+                
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400/20 to-teal-400/20 blur-xl -z-10"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -405,67 +419,76 @@ const HeroSection = () => {
 // About Section
 const AboutSection = () => {
   return (
-    <section className="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* 3D Animation */}
-          <div className="flex justify-center lg:justify-start">
-            <div className="w-96 h-96 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-2xl blur-3xl"></div>
+    <section className="pt-20 pb-20 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center space-x-4 text-emerald-400 text-lg font-bold tracking-wider uppercase bg-emerald-400/15 px-8 py-4 rounded-full border-2 border-emerald-400/30 shadow-lg shadow-emerald-400/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
+            <span>About Me</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-16 items-center">
+          {/* Enhanced 3D Animation */}
+          <div className="flex justify-center lg:justify-start flex-shrink-0">
+            <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-3xl blur-3xl animate-pulse"></div>
               <div className="relative w-full h-full">
-                <Suspense fallback={<div className="w-full h-full bg-slate-800 rounded-2xl animate-pulse" />}>
+                <Suspense fallback={
+                  <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-700 rounded-3xl animate-pulse flex items-center justify-center">
+                    <div className="w-20 h-20 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                }>
                   <ThreeScene variant="geometric" />
                 </Suspense>
               </div>
             </div>
           </div>
 
-          {/* Content */}
-          <div className="space-y-8">
-            <div>
-              <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase mb-4">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                <span>About Me</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-6">
+          {/* Enhanced Content */}
+          <div className="flex-1 space-y-8 text-center lg:text-left">
+            <div className="space-y-6 mb-10">
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 leading-tight">
                 Crafting Digital 
-                <span className="text-emerald-400"> Experiences</span>
+                <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  Experiences
+                </span>
               </h2>
             </div>
 
             <div className="space-y-6 text-slate-300 leading-relaxed">
-              <p className="text-lg">
+              <p className="text-lg md:text-xl leading-relaxed">
                 As a dedicated Computer Science student, I combine strong theoretical foundations 
                 with practical development experience. My approach focuses on writing clean, 
                 maintainable code while delivering exceptional user experiences.
               </p>
 
-              <p className="text-lg">
-                With expertise spanning <span className="text-emerald-400 font-semibold">Java</span>, 
-                <span className="text-emerald-400 font-semibold"> Python</span>, 
-                <span className="text-emerald-400 font-semibold"> C++</span>, and modern web technologies, 
+              <p className="text-lg md:text-xl leading-relaxed">
+                With expertise spanning <span className="text-emerald-400 font-bold">Java</span>, 
+                <span className="text-emerald-400 font-bold"> Python</span>, 
+                <span className="text-emerald-400 font-bold"> C++</span>, and modern web technologies, 
                 I enjoy tackling complex problems and transforming ideas into functional solutions.
               </p>
 
-              <p className="text-lg">
+              <p className="text-lg md:text-xl leading-relaxed">
                 From enterprise systems to interactive games, I believe in the power of technology 
                 to solve real-world challenges while maintaining a focus on performance, scalability, 
                 and user-centered design principles.
               </p>
             </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-800">
+            {/* Enhanced Statistics */}
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-700/50">
               {[
-                { number: '15+', label: 'Projects Delivered' },
-                { number: '3+', label: 'Years Experience' },
-                { number: '6+', label: 'Tech Stacks' }
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-3xl font-bold text-emerald-400 mb-2">
+                { number: '15+', label: 'Projects Delivered', color: 'from-emerald-400 to-teal-400' },
+                { number: '3+', label: 'Years Experience', color: 'from-teal-400 to-cyan-400' },
+                { number: '6+', label: 'Tech Stacks', color: 'from-cyan-400 to-blue-400' }
+              ].map((stat, index) => (
+                <div key={stat.label} className="text-center group">
+                  <div className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-500`}>
                     {stat.number}
                   </div>
-                  <div className="text-slate-400 text-sm">{stat.label}</div>
+                  <div className="text-slate-400 text-sm md:text-base font-medium">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -494,7 +517,7 @@ const ServicesSection = () => {
       color: 'from-purple-500 to-pink-500'
     },
     {
-      icon: '🏗️',
+      icon: '🗄️',
       title: 'System Architecture',
       description: 'Scalable enterprise systems with robust database design, API development, and security implementation.',
       features: ['Database Design', 'API Development', 'System Architecture', 'Security Implementation'],
@@ -510,17 +533,20 @@ const ServicesSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-slate-900">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase mb-4">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+    <section className="pt-20 pb-20 bg-slate-900 w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center space-x-4 text-emerald-400 text-lg font-bold tracking-wider uppercase bg-emerald-400/15 px-8 py-4 rounded-full border-2 border-emerald-400/30 shadow-lg shadow-emerald-400/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
             <span>What I Do</span>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-4">
-            Professional <span className="text-emerald-400">Services</span>
+        </div>
+
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4 leading-tight">
+            Professional <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Services</span>
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-400 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed">
             Comprehensive development solutions tailored to your specific needs
           </p>
         </div>
@@ -529,13 +555,15 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div 
               key={service.title}
-              className="group bg-slate-800/50 border border-slate-700 rounded-2xl p-8 hover:border-emerald-400/50 transition-all duration-500 hover:bg-slate-800/70"
+              className="group bg-slate-800/30 border border-slate-700/50 rounded-3xl p-8 hover:border-emerald-400/50 transition-all duration-700 hover:bg-slate-800/50 backdrop-blur-sm hover:scale-105"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className={`w-16 h-16 bg-gradient-to-r ${service.color} rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-16 h-16 bg-gradient-to-r ${service.color} rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg`}>
                 {service.icon}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${service.color} opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500`}></div>
               </div>
 
-              <h3 className="text-2xl font-bold text-slate-100 mb-4 group-hover:text-emerald-400 transition-colors duration-300">
+              <h3 className="text-2xl font-bold text-slate-100 mb-4 group-hover:text-emerald-400 transition-colors duration-500">
                 {service.title}
               </h3>
               
@@ -544,15 +572,15 @@ const ServicesSection = () => {
               </p>
 
               <div className="space-y-3 mb-8">
-                {service.features.map((feature) => (
-                  <div key={feature} className="flex items-center space-x-3">
-                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
-                    <span className="text-slate-300 text-sm">{feature}</span>
+                {service.features.map((feature, i) => (
+                  <div key={feature} className="flex items-center space-x-3 group-hover:translate-x-2 transition-transform duration-300" style={{ transitionDelay: `${i * 50}ms` }}>
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                    <span className="text-slate-300">{feature}</span>
                   </div>
                 ))}
               </div>
 
-              <button className="w-full bg-transparent border border-slate-600 text-slate-300 py-3 rounded-lg font-medium hover:border-emerald-400 hover:text-emerald-400 transition-all duration-300">
+              <button className="w-full bg-transparent border-2 border-slate-600 text-slate-300 py-3 rounded-2xl font-semibold hover:border-emerald-400 hover:text-emerald-400 hover:bg-emerald-400/5 transition-all duration-500">
                 Learn More
               </button>
             </div>
@@ -563,6 +591,7 @@ const ServicesSection = () => {
   );
 };
 
+// Skills Section
 const SkillsSection = () => {
   const skills = [
     { name: 'Java', level: 85, color: 'from-orange-400 to-red-500' },
@@ -574,42 +603,52 @@ const SkillsSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-950">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase mb-4">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+    <section className="pt-20 pb-20 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center space-x-4 text-emerald-400 text-lg font-bold tracking-wider uppercase bg-emerald-400/15 px-8 py-4 rounded-full border-2 border-emerald-400/30 shadow-lg shadow-emerald-400/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
             <span>Technical Expertise</span>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-4">
-            Skills & <span className="text-emerald-400">Proficiency</span>
+        </div>
+
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4 leading-tight">
+            Skills & <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Proficiency</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <div className="space-y-8">
+        <div className="flex flex-col lg:flex-row gap-16 items-center">
+          <div className="flex-1 space-y-8">
             {skills.map((skill, index) => (
-              <div key={skill.name} className="space-y-3">
+              <div key={skill.name} className="space-y-3 group">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-slate-100 font-medium text-lg">{skill.name}</h3>
-                  <span className="text-emerald-400 font-semibold">{skill.level}%</span>
+                  <h3 className="text-slate-100 font-bold text-xl group-hover:text-emerald-400 transition-colors duration-500">{skill.name}</h3>
+                  <span className={`text-xl font-black bg-gradient-to-r ${skill.color} bg-clip-text text-transparent`}>{skill.level}%</span>
                 </div>
-                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-3 bg-slate-800 rounded-full overflow-hidden relative">
                   <div 
-                    className={`h-full bg-gradient-to-r ${skill.color} rounded-full transition-all duration-1000 ease-out`}
+                    className={`h-full bg-gradient-to-r ${skill.color} rounded-full transition-all duration-2000 ease-out relative`}
                     style={{ 
                       width: `${skill.level}%`,
-                      animationDelay: `${index * 0.1}s`
+                      animationDelay: `${index * 0.2}s`
                     }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center justify-center">
-            <div className="w-96 h-96">
-              <Suspense fallback={<div className="w-full h-full bg-slate-800 rounded-lg animate-pulse" />}>
+          <div className="flex items-center justify-center flex-shrink-0">
+            <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 rounded-3xl blur-3xl animate-pulse"></div>
+              <Suspense fallback={
+                <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-700 rounded-3xl animate-pulse flex items-center justify-center">
+                  <div className="w-20 h-20 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              }>
                 <ThreeScene variant="network" />
               </Suspense>
             </div>
@@ -661,17 +700,20 @@ const ProjectsSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-slate-950">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase mb-4">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+    <section className="pt-20 pb-20 bg-slate-950 w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center space-x-4 text-emerald-400 text-lg font-bold tracking-wider uppercase bg-emerald-400/15 px-8 py-4 rounded-full border-2 border-emerald-400/30 shadow-lg shadow-emerald-400/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
             <span>Portfolio</span>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-4">
-            Featured <span className="text-emerald-400">Projects</span>
+        </div>
+
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4 leading-tight">
+            Featured <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Projects</span>
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-400 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed">
             A showcase of recent work and technical achievements
           </p>
         </div>
@@ -680,13 +722,15 @@ const ProjectsSection = () => {
           {projects.map((project, index) => (
             <div 
               key={project.title}
-              className="group bg-slate-900/50 border border-slate-800 rounded-2xl p-6 hover:border-emerald-400/50 transition-all duration-300 hover:bg-slate-900/70"
+              className="group bg-slate-900/30 border border-slate-800/50 rounded-3xl p-6 hover:border-emerald-400/50 transition-all duration-700 hover:bg-slate-900/50 backdrop-blur-sm hover:scale-105"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className={`w-14 h-14 bg-gradient-to-r ${project.color} rounded-xl flex items-center justify-center text-xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-14 h-14 bg-gradient-to-r ${project.color} rounded-2xl flex items-center justify-center text-xl mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg relative`}>
                 {project.icon}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-r ${project.color} opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500`}></div>
               </div>
 
-              <h3 className="text-xl font-bold text-slate-100 mb-3 group-hover:text-emerald-400 transition-colors duration-300">
+              <h3 className="text-xl font-bold text-slate-100 mb-4 group-hover:text-emerald-400 transition-colors duration-500">
                 {project.title}
               </h3>
               <p className="text-slate-400 mb-6 leading-relaxed text-sm">
@@ -694,17 +738,18 @@ const ProjectsSection = () => {
               </p>
 
               <div className="flex flex-wrap gap-2 mb-6">
-                {project.tech.map((tech) => (
+                {project.tech.map((tech, i) => (
                   <span 
                     key={tech}
-                    className="px-3 py-1 bg-emerald-400/10 text-emerald-400 rounded-full text-xs border border-emerald-400/20"
+                    className="px-3 py-1 bg-emerald-400/10 text-emerald-400 rounded-full text-xs border border-emerald-400/20 hover:bg-emerald-400/20 transition-all duration-300"
+                    style={{ animationDelay: `${i * 100}ms` }}
                   >
                     {tech}
                   </span>
                 ))}
               </div>
 
-              <button className="w-full flex items-center justify-center space-x-2 bg-slate-800 border border-slate-700 text-slate-300 py-3 rounded-lg font-medium hover:border-emerald-400 hover:text-emerald-400 transition-all duration-300">
+              <button className="w-full flex items-center justify-center space-x-2 bg-slate-800/50 border-2 border-slate-700 text-slate-300 py-3 rounded-2xl font-semibold text-sm hover:border-emerald-400 hover:text-emerald-400 hover:bg-emerald-400/5 transition-all duration-500 group-hover:scale-105">
                 <span>View Project</span>
                 <ExternalLinkIcon />
               </button>
@@ -716,127 +761,192 @@ const ProjectsSection = () => {
   );
 };
 
+// Contact Section
 const ContactSection = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add form handling logic here
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      // Initialize EmailJS with your public key
+      if (typeof window !== 'undefined' && window.emailjs) {
+        window.emailjs.init('L7z1jG6fb3MqQp55d');
+        
+        // Send email using EmailJS
+        const result = await window.emailjs.send(
+          'service_yp94s7j', 
+          'template_jdey9q8', // Replace with your EmailJS template ID
+          {
+            from_name: formData.name,
+            from_email: formData.email,
+            message: formData.message,
+            to_name: 'Khushi Jagwani',
+          }
+        );
+
+        console.log('Email sent successfully:', result);
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        throw new Error('EmailJS not loaded');
+      }
+    } catch (error) {
+      console.error('Email send failed:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <section className="py-24 bg-slate-900">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-2 text-emerald-400 text-sm font-medium tracking-wide uppercase mb-4">
-            <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+    <section className="pt-20 pb-20 bg-slate-900 w-full">
+      <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center space-x-4 text-emerald-400 text-lg font-bold tracking-wider uppercase bg-emerald-400/15 px-8 py-4 rounded-full border-2 border-emerald-400/30 shadow-lg shadow-emerald-400/20">
+            <div className="w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
             <span>Contact</span>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-slate-100 mb-4">
-            Let's <span className="text-emerald-400">Connect</span>
+        </div>
+
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4 leading-tight">
+            Let's <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Connect</span>
           </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-400 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed">
             Ready to collaborate on your next project or discuss opportunities
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="flex flex-col lg:flex-row gap-16">
           {/* Contact Info */}
-          <div className="space-y-8">
+          <div className="flex-1 space-y-8">
             <div>
-              <h3 className="text-2xl font-bold text-slate-100 mb-6">
+              <h3 className="text-2xl lg:text-3xl font-bold text-slate-100 mb-6 leading-tight">
                 Let's Build Something <span className="text-emerald-400">Amazing</span>
               </h3>
-              <p className="text-slate-400 leading-relaxed mb-8">
+              <p className="text-slate-400 leading-relaxed mb-8 text-lg">
                 I'm always interested in new opportunities and exciting projects. 
                 Whether it's a collaboration, internship, or full-time position, 
                 I'd love to hear from you.
               </p>
             </div>
 
-            {/* Contact Details */}
+            {/* Enhanced Contact Details */}
             <div className="space-y-6">
               {[
                 { icon: MailIcon, label: 'Email', value: 'khushijagwani04@gmail.com' },
                 { icon: PhoneIcon, label: 'Phone', value: '+92 XXX XXXXXXX' },
                 { icon: MapPinIcon, label: 'Location', value: 'Karachi, Pakistan' }
               ].map((contact) => (
-                <div key={contact.label} className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-emerald-400/10 border border-emerald-400/20 rounded-lg flex items-center justify-center text-emerald-400">
+                <div key={contact.label} className="flex items-center space-x-4 group hover:translate-x-2 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-emerald-400/10 border border-emerald-400/20 rounded-2xl flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-400/20 transition-all duration-300">
                     <contact.icon />
                   </div>
                   <div>
-                    <p className="text-slate-400 text-sm">{contact.label}</p>
-                    <p className="text-slate-100 font-medium">{contact.value}</p>
+                    <p className="text-slate-400 mb-1">{contact.label}</p>
+                    <p className="text-slate-100 font-semibold">{contact.value}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* 3D Element */}
+            {/* Enhanced 3D Element */}
             <div className="w-64 h-64 mx-auto lg:mx-0">
-              <Suspense fallback={<div className="w-full h-full bg-slate-800 rounded-lg animate-pulse" />}>
+              <Suspense fallback={
+                <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-700 rounded-3xl animate-pulse flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              }>
                 <ThreeScene variant="network" />
               </Suspense>
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-8">
+          {/* Enhanced Contact Form */}
+          <div className="flex-1 bg-slate-800/30 border border-slate-700/50 rounded-3xl p-8 backdrop-blur-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-slate-100 mb-2 font-medium">Name</label>
+                <label className="block text-slate-100 mb-2 font-semibold">Name</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-slate-900 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300"
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-900/50 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-500 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Your full name"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-100 mb-2 font-medium">Email</label>
+                <label className="block text-slate-100 mb-2 font-semibold">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-slate-900 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300"
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-900/50 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-500 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="your.email@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-100 mb-2 font-medium">Message</label>
+                <label className="block text-slate-100 mb-2 font-semibold">Message</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   required
+                  disabled={isSubmitting}
                   rows="5"
-                  className="w-full px-4 py-3 rounded-lg bg-slate-900 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-300 resize-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-900/50 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all duration-500 resize-none backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Tell me about your project or opportunity..."
                 />
               </div>
 
+              {/* Submit Status Messages */}
+              {submitStatus === 'success' && (
+                <div className="p-4 bg-emerald-400/10 border border-emerald-400/20 rounded-2xl text-emerald-400 text-center">
+                  Message sent successfully! I'll get back to you soon.
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="p-4 bg-red-400/10 border border-red-400/20 rounded-2xl text-red-400 text-center">
+                  Failed to send message. Please try again or contact me directly.
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-4 rounded-lg font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105"
+                disabled={isSubmitting}
+                className="w-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 text-white py-4 rounded-2xl font-bold hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-500 hover:scale-105 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Send Message
+                <span className="relative z-10">
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </span>
+                {isSubmitting && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </button>
             </form>
           </div>
@@ -849,6 +959,27 @@ const ContactSection = () => {
 // Main Portfolio Component
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
+
+  useEffect(() => {
+    // Load EmailJS script
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+    script.async = true;
+    script.onload = () => {
+      // Initialize EmailJS after script loads
+      if (window.emailjs) {
+        window.emailjs.init('L7z1jG6fb3MqQp55d');
+      }
+    };
+    document.head.appendChild(script);
+
+    // Cleanup function
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -871,23 +1002,35 @@ const Portfolio = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Custom CSS */}
+    <div className="w-full max-w-full bg-slate-950 text-slate-100 overflow-x-hidden">
+      {/* Enhanced Custom CSS */}
       <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
         
         * {
           font-family: 'Inter', sans-serif;
+          box-sizing: border-box;
         }
         
-        /* Smooth scrolling */
-        html {
+        html, body {
+          overflow-x: hidden !important;
+          max-width: 100vw !important;
           scroll-behavior: smooth;
+        }
+        
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        
+        /* Disable horizontal scrolling completely */
+        html {
+          overflow-x: hidden !important;
         }
         
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-          width: 6px;
+          width: 8px;
         }
         
         ::-webkit-scrollbar-track {
@@ -896,7 +1039,7 @@ const Portfolio = () => {
         
         ::-webkit-scrollbar-thumb {
           background: linear-gradient(to bottom, #10b981, #14b8a6);
-          border-radius: 3px;
+          border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
@@ -909,10 +1052,31 @@ const Portfolio = () => {
           color: #ffffff;
         }
         
-        /* Subtle animations */
+        /* Enhanced animations */
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-10px) rotate(1deg); }
+          50% { transform: translateY(-5px) rotate(0deg); }
+          75% { transform: translateY(-15px) rotate(-1deg); }
+        }
+        
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
         }
         
         .float-animation {
@@ -927,13 +1091,20 @@ const Portfolio = () => {
           outline-offset: 2px;
         }
         
+        /* Glass morphism effect */
+        .glass {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
         /* Improved hover states */
         .hover-lift {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .hover-lift:hover {
-          transform: translateY(-2px);
+          transform: translateY(-4px);
         }
       `}</style>
 
@@ -963,9 +1134,9 @@ const Portfolio = () => {
         <ContactSection />
       </div>
 
-      {/* Footer */}
-      <footer className="bg-slate-950 py-12 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Enhanced Footer */}
+      <footer className="bg-slate-950 py-12 w-full">
+        <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-slate-400">
               © 2025 Khushi Jagwani. Crafted with precision and passion.
@@ -981,7 +1152,7 @@ const Portfolio = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-slate-400 hover:text-emerald-400 transition-colors duration-300"
+                  className="text-slate-400 hover:text-emerald-400 transition-all duration-500 hover:scale-125"
                 >
                   <social.icon />
                 </a>
