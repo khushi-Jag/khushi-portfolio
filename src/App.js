@@ -130,9 +130,6 @@ const ThreeScene = ({ variant = 'geometric' }) => {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Store current ref value to use in cleanup
-    const currentMount = mountRef.current;
-
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -141,7 +138,7 @@ const ThreeScene = ({ variant = 'geometric' }) => {
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    currentMount.appendChild(renderer.domElement);
+    mountRef.current.appendChild(renderer.domElement);
 
     sceneRef.current = scene;
     rendererRef.current = renderer;
@@ -254,8 +251,8 @@ const ThreeScene = ({ variant = 'geometric' }) => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
-      if (currentMount && renderer.domElement) {
-        currentMount.removeChild(renderer.domElement);
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
       }
       renderer.dispose();
     };
@@ -324,7 +321,7 @@ const HeroSection = () => {
           <div className="flex-1 space-y-8 text-center lg:text-left">
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-none">
-                <span className="text-slate-100">Hi, I&apos;m </span>
+                <span className="text-slate-100">Hi, I'm </span>
                 <div className="inline-block">
                   <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                     Khushi
@@ -486,7 +483,7 @@ const AboutSection = () => {
                 { number: '15+', label: 'Projects Delivered', color: 'from-emerald-400 to-teal-400' },
                 { number: '3+', label: 'Years Experience', color: 'from-teal-400 to-cyan-400' },
                 { number: '6+', label: 'Tech Stacks', color: 'from-cyan-400 to-blue-400' }
-              ].map((stat) => (
+              ].map((stat, index) => (
                 <div key={stat.label} className="text-center group">
                   <div className={`text-3xl md:text-4xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-500`}>
                     {stat.number}
@@ -786,12 +783,12 @@ const ContactSection = () => {
     try {
       // Initialize EmailJS with your public key
       if (typeof window !== 'undefined' && window.emailjs) {
-        window.emailjs.init('L7z1jG6fb3MqQp55d');
+        window.emailjs.init('Gp5U8gBI8Xs7QzcIn');
         
         // Send email using EmailJS
         const result = await window.emailjs.send(
           'service_5zsrr2k', 
-          'template_kivhv25',
+          'template_kivhv25', // Replace with your EmailJS template ID
           {
             from_name: formData.name,
             from_email: formData.email,
@@ -826,7 +823,7 @@ const ContactSection = () => {
 
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-slate-100 mb-4 leading-tight">
-            Let&apos;s <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Connect</span>
+            Let's <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Connect</span>
           </h2>
           <p className="text-slate-400 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed">
             Ready to collaborate on your next project or discuss opportunities
@@ -838,12 +835,12 @@ const ContactSection = () => {
           <div className="flex-1 space-y-8">
             <div>
               <h3 className="text-2xl lg:text-3xl font-bold text-slate-100 mb-6 leading-tight">
-                Let&apos;s Build Something <span className="text-emerald-400">Amazing</span>
+                Let's Build Something <span className="text-emerald-400">Amazing</span>
               </h3>
               <p className="text-slate-400 leading-relaxed mb-8 text-lg">
-                I&apos;m always interested in new opportunities and exciting projects. 
-                Whether it&apos;s a collaboration, internship, or full-time position, 
-                I&apos;d love to hear from you.
+                I'm always interested in new opportunities and exciting projects. 
+                Whether it's a collaboration, internship, or full-time position, 
+                I'd love to hear from you.
               </p>
             </div>
 
@@ -926,7 +923,7 @@ const ContactSection = () => {
               {/* Submit Status Messages */}
               {submitStatus === 'success' && (
                 <div className="p-4 bg-emerald-400/10 border border-emerald-400/20 rounded-2xl text-emerald-400 text-center">
-                  Message sent successfully! I&apos;ll get back to you soon.
+                  Message sent successfully! I'll get back to you soon.
                 </div>
               )}
               
@@ -1006,6 +1003,111 @@ const Portfolio = () => {
 
   return (
     <div className="w-full max-w-full bg-slate-950 text-slate-100 overflow-x-hidden">
+      {/* Enhanced Custom CSS */}
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        
+        * {
+          font-family: 'Inter', sans-serif;
+          box-sizing: border-box;
+        }
+        
+        html, body {
+          overflow-x: hidden !important;
+          max-width: 100vw !important;
+          scroll-behavior: smooth;
+        }
+        
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        
+        /* Disable horizontal scrolling completely */
+        html {
+          overflow-x: hidden !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+          background: #0f172a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #10b981, #14b8a6);
+          border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #059669, #0d9488);
+        }
+        
+        /* Selection color */
+        ::selection {
+          background: rgba(16, 185, 129, 0.3);
+          color: #ffffff;
+        }
+        
+        /* Enhanced animations */
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          25% { transform: translateY(-10px) rotate(1deg); }
+          50% { transform: translateY(-5px) rotate(0deg); }
+          75% { transform: translateY(-15px) rotate(-1deg); }
+        }
+        
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+        
+        .float-animation {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Focus states */
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+          outline: 2px solid #10b981;
+          outline-offset: 2px;
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Improved hover states */
+        .hover-lift {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+          transform: translateY(-4px);
+        }
+      `}</style>
+
       <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
       
       <div id="home">
@@ -1044,9 +1146,9 @@ const Portfolio = () => {
                 { icon: LinkedinIcon, href: 'https://www.linkedin.com/in/khushi-jagwani-766a6a348', label: 'LinkedIn' },
                 { icon: GithubIcon, href: 'https://github.com/khushi-Jag', label: 'GitHub' },
                 { icon: MailIcon, href: 'mailto:khushijagwani04@gmail.com', label: 'Email' }
-              ].map((social) => (
+              ].map((social, index) => (
                 <a
-                  key={social.label}
+                  key={index}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
