@@ -790,8 +790,8 @@ const ContactSection = () => {
         
         // Send email using EmailJS
         const result = await window.emailjs.send(
-          'service_yp94s7j', 
-          'template_jdey9q8',
+          'service_5zsrr2k', 
+          'template_kivhv25',
           {
             from_name: formData.name,
             from_email: formData.email,
