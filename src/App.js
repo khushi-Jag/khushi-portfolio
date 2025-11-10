@@ -280,13 +280,14 @@ const HeroSection = () => {
   }, []);
 
   const downloadCV = () => {
-    const link = document.createElement('a');
-    link.href = '/Khushi_CV.pdf';
-    link.download = 'Khushi_CV.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const link = document.createElement('a');
+  link.href = '/Khushi - CV.pdf';
+  link.download = 'khushi_cv.pdf';  // <-- changed file name here
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 
   const downloadResume = () => {
     const link = document.createElement('a');
