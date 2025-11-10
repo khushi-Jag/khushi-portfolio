@@ -127,8 +127,11 @@ const ThreeScene = ({ variant = 'geometric' }) => {
   const rendererRef = useRef(null);
   const animationFrameRef = useRef(null);
 
-  useEffect(() => {
+ useEffect(() => {
     if (!mountRef.current) return;
+
+    // Store current ref value to use in cleanup
+    const currentMount = mountRef.current;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
@@ -138,7 +141,7 @@ const ThreeScene = ({ variant = 'geometric' }) => {
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    mountRef.current.appendChild(renderer.domElement);
+    currentMount.appendChild(renderer.domElement);
 
     sceneRef.current = scene;
     rendererRef.current = renderer;
