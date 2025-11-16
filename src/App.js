@@ -281,7 +281,7 @@ const HeroSection = () => {
 
   const downloadCV = () => {
     const link = document.createElement('a');
-    link.href = '/Khushi - CV.pdf';
+    link.href = '/khushi_cv.pdf';
     link.download = 'Khushi - CV.pdf';
     document.body.appendChild(link);
     link.click();
