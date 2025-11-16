@@ -786,12 +786,12 @@ const ContactSection = () => {
     try {
       // Initialize EmailJS with your public key
       if (typeof window !== 'undefined' && window.emailjs) {
-        window.emailjs.init('L7z1jG6fb3MqQp55d');
+        window.emailjs.init('Gp5U8gBI8Xs7QzcIn');
         
         // Send email using EmailJS
         const result = await window.emailjs.send(
-          'service_yp94s7j', 
-          'template_jdey9q8',
+          'service_5zsrr2k', 
+          'template_kivhv25',
           {
             from_name: formData.name,
             from_email: formData.email,
