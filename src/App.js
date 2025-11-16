@@ -680,7 +680,7 @@ const ProjectsSection = () => {
       color: 'from-purple-500 to-pink-500'
     },
     {
-      title: 'Interactive Café Website',
+      title: 'Interactive Cafe Website',
       description: 'Modern café website with digital menu, reservation system, and mobile-optimized user experience.',
       tech: ['HTML', 'CSS', 'Bootstrap'],
       icon: '☕',
