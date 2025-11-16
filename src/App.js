@@ -280,14 +280,13 @@ const HeroSection = () => {
   }, []);
 
   const downloadCV = () => {
-  const link = document.createElement('a');
-  link.href = '/Khushi - CV.pdf';
-  link.download = 'khushi_cv.pdf';  // <-- changed file name here
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
+    const link = document.createElement('a');
+    link.href = '/Khushi - CV.pdf';
+    link.download = 'Khushi - CV.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const downloadResume = () => {
     const link = document.createElement('a');
@@ -787,12 +786,12 @@ const ContactSection = () => {
     try {
       // Initialize EmailJS with your public key
       if (typeof window !== 'undefined' && window.emailjs) {
-        window.emailjs.init('Gp5U8gBI8Xs7QzcIn');
+        window.emailjs.init('L7z1jG6fb3MqQp55d');
         
         // Send email using EmailJS
         const result = await window.emailjs.send(
-          'service_5zsrr2k', 
-          'template_y4x8kul',
+          'service_yp94s7j', 
+          'template_jdey9q8',
           {
             from_name: formData.name,
             from_email: formData.email,
